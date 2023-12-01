@@ -14,7 +14,7 @@ RUN chmod -R 755 /var/lib/mysql/
 
 EXPOSE 3306
 
-COPY ./init.sh ./
+COPY conf/init.sh .
 RUN chmod +x ./init.sh
 
 ENTRYPOINT ["bash", "./init.sh"]
