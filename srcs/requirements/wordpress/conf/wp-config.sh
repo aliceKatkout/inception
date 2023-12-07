@@ -28,3 +28,10 @@ wp user create		--allow-root \
 
 # empty cache
 wp cache flush --allow-root
+
+if [ ! -d /run/php ]; then
+	mkdir /run/php;
+fi
+
+# start the PHP FastCGI Process Manager (FPM) for PHP version 7.3 in the foreground
+exec /usr/sbin/php-fpm7.4 -F -R
