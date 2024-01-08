@@ -1,25 +1,25 @@
-#!/bin/sh
-sleep 10;
+#!/bin/bash
+
+sleep 10
 
 cd /var/www/html/wordpress
 
-if ![wp-config.php]; then
-	wp config create --allow-root \
-					--dbname=${SQL_DATABASE} \
-					--dbuser=${SQL_USER} \
-					--dbpass=${SQL_PASSWORD} \
-					--dbhost=mariadb:3306 \
-					--path=/var/www/wordpress \
-					--url=https://${DOMAIN_NAME}
-fi
+if [ ! -f wp-config.php ]; then
+  wp config create --allow-root \
+    --dbname=${SQL_DATABASE} \
+    --dbuser=${SQL_USER} \
+    --dbpass=${SQL_PASSWORD} \
+    --dbhost=mariadb \
+    --path='/var/www/html/wordpress' \
+    --url=https://${DOMAIN_NAME}
 
-wp core install --allow-root \
-				--url=https://${DOMAIN_NAME} \
-				--title=${DOMAIN_NAME} \
-				--admin_user=${WP_USER} \
-				--admin_password=${WP_PASSWORD} \
-				--admin_email=${WP_EMAIL} \
-				--skip-email
+wp core install	--allow-root \
+			--path='/var/www/html/wordpress' \
+			--url=https://${DOMAIN_NAME} \
+			--title=${SITE_TITLE} \
+			--admin_user=${ADMIN_USER} \
+			--admin_password=${ADMIN_PASSWORD} \
+			--admin_email=${ADMIN_EMAIL};
 
 wp user create		--allow-root \
 			${USER1_LOGIN} ${USER1_MAIL} \
@@ -28,6 +28,8 @@ wp user create		--allow-root \
 
 # empty cache
 wp cache flush --allow-root
+
+fi
 
 if [ ! -d /run/php ]; then
 	mkdir /run/php;
