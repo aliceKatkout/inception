@@ -5,30 +5,31 @@ sleep 10
 cd /var/www/html/wordpress
 
 if [ ! -f wp-config.php ]; then
-  wp config create --allow-root \
-    --dbname=${SQL_DATABASE} \
-    --dbuser=${SQL_USER} \
-    --dbpass=${SQL_PASSWORD} \
-    --dbhost=mariadb \
-    --path='/var/www/html/wordpress' \
-    --url=https://${DOMAIN_NAME}
+	echo "cREATING CONFIG .... !\n"
+	wp config create --allow-root \
+		--dbname=${SQL_DATABASE} \
+		--dbuser=${SQL_USER} \
+		--dbpass=${SQL_PASSWORD} \
+		--dbhost=mariadb \
+		--path='/var/www/html/wordpress' \
+		--url=https://${DOMAIN_NAME}
 
-wp core install	--allow-root \
-			--path='/var/www/html/wordpress' \
-			--url=https://${DOMAIN_NAME} \
-			--title=${SITE_TITLE} \
-			--admin_user=${ADMIN_USER} \
-			--admin_password=${ADMIN_PASSWORD} \
-			--admin_email=${ADMIN_EMAIL};
+	wp core install	--allow-root \
+				--path='/var/www/html/wordpress' \
+				--url=https://${DOMAIN_NAME} \
+				--title=${SITE_TITLE} \
+				--admin_user=${ADMIN_USER} \
+				--admin_password=${ADMIN_PASSWORD} \
+				--admin_email=${ADMIN_EMAIL};
 
-wp user create		--allow-root \
-			${USER1_LOGIN} ${USER1_MAIL} \
-			--role=author \
-			--user_pass=${USER1_PASS} ;
+	wp user create		--allow-root \
+				${USER1_LOGIN} ${USER1_MAIL} \
+				--role=author \
+				--user_pass=${USER1_PASS} ;
 
-# empty cache
-wp cache flush --allow-root
-
+	# empty cache
+	wp cache flush --allow-root
+	echo "wp-config created successfully !"
 fi
 
 if [ ! -d /run/php ]; then

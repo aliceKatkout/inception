@@ -22,6 +22,25 @@ services:
       retries: 20
       start_period: 5s
 
+
+  wordpress:
+    image: wordpress
+    container_name: wordpress
+    networks:
+      - inception
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+    build:
+      context: ./requirements/wordpress
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html/wordpress
+    expose:
+      - "9000:9000"
+      
   nginx:
     image: nginx
     container_name: nginx
@@ -43,24 +62,6 @@ services:
       timeout: 1s
       retries: 10
       start_period: 5s
-
-  wordpress:
-    image: wordpress
-    container_name: wordpress
-    networks:
-      - inception
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    restart: unless-stopped
-    build:
-      context: ./requirements/wordpress
-    env_file:
-      - .env
-    volumes:
-      - wordpress:/var/www/html/wordpress
-    expose:
-      - "9000:9000"
 
 volumes:
   mariadb:
