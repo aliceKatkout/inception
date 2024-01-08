@@ -1,8 +1,8 @@
 version: '3.1'
-name: inception
-services:
 
+services:
   mariadb:
+    image: mariadb
     container_name: mariadb
     networks:
       - inception
@@ -14,15 +14,22 @@ services:
     volumes:
       - mariadb:/var/lib/mysql
     expose:
-      - "3306"
-  
+      - "3306:3306"
+    healthcheck:
+      test: mysqladmin ping --host=localhost -p${SQL_ROOT_PASSWORD}
+      interval: 5s
+      timeout: 1s
+      retries: 20
+      start_period: 5s
+
   nginx:
+    image: nginx
     container_name: nginx
     networks:
       - inception
     depends_on:
       - wordpress
-    restart: on-failure
+    restart: unless-stopped
     build:
       context: ./requirements/nginx
     env_file:
@@ -30,39 +37,46 @@ services:
     ports:
       - "443:443"
     volumes:
-      - wordpress:/var/www/html
-    
+      - wordpress:/var/www/html/wordpress
+    healthcheck:
+      interval: 5s
+      timeout: 1s
+      retries: 10
+      start_period: 5s
+
   wordpress:
+    image: wordpress
     container_name: wordpress
     networks:
       - inception
     depends_on:
-      - mariadb
-    restart: on-failure
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
     build:
       context: ./requirements/wordpress
     env_file:
       - .env
     volumes:
-      - wordpress:/var/www/html
+      - wordpress:/var/www/html/wordpress
     expose:
-      - "9000"
+      - "9000:9000"
 
 volumes:
-  wordpress:
-    driver: local # ici nous stockons le volume en local
-    driver_opts:
-     type: 'none' 									# aucun type spécifique
-     o: 'bind'
-     device: "/home/avedrenn/data/wordpress" 		#Ou stocker le dossier sur votre ordinateur en local
   mariadb:
     driver: local
     driver_opts:
-      type: 'none' 
+      type: 'none'
       o: 'bind'	# Les Bind Mounts sont des volumes qui se montent sur un chemin d'accès à l'hôte, et ils peuvent être modifiés par d'autres processus en dehors de docker.
       device: "/home/avedrenn/data/mariadb"		#Ou stocker le dossier sur votre ordinateur en local
+  wordpress:
+    driver: local # ici nous stockons le volume en local
+    driver_opts:
+      type: 'none' 									# aucun type spécifique
+      o: 'bind'
+      device: "/home/avedrenn/data/wordpress" 		#Ou stocker le dossier sur votre ordinateur en local
 
 networks:
-  inception:  # création du réseau    
+  inception:  # création du réseau
+    name: inception
     driver: bridge
-

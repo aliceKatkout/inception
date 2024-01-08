@@ -1,7 +1,11 @@
 FROM debian:bullseye
 
-RUN apt-get update
-RUN apt-get install -y 	mariadb-server
+# install MariaDB and other dependencies
+RUN apt-get update -y
+RUN apt-get upgrade -y
+RUN apt-get install -y mariadb-server
+RUN apt-get install -y mariadb-client
+RUN apt-get install -y procps
 
 COPY conf/50-server.cnf	/etc/mysql/mariadb.conf.d/50-server.cnf
 
@@ -14,7 +18,7 @@ RUN chmod -R 755 /var/lib/mysql/
 
 EXPOSE 3306
 
-COPY conf/init.sh .
+COPY ./conf/init.sh .
 RUN chmod +x ./init.sh
 
 ENTRYPOINT ["bash", "./init.sh"]
